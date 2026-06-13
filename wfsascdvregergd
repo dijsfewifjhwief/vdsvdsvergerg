@@ -1,1 +1,271 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = playerGui
+screenGui.ResetOnSpawn = false
+screenGui.DisplayOrder = 999999
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 220, 0, 220)
+frame.Position = UDim2.new(0.38, 0, 0.38, 0)
+frame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screenGui
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 16)
+
+local header = Instance.new("TextLabel")
+header.Size = UDim2.new(1, -20, 0, 28)
+header.Position = UDim2.new(0, 10, 0, 8)
+header.BackgroundTransparency = 1
+header.Text = "Trade Lumy.rbx"
+header.TextColor3 = Color3.fromRGB(255, 255, 255)
+header.Font = Enum.Font.LuckiestGuy
+header.TextSize = 20
+header.TextXAlignment = Enum.TextXAlignment.Left
+header.TextStrokeTransparency = 0.3
+header.Parent = frame
+
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Size = UDim2.new(0, 24, 0, 24)
+minimizeButton.Position = UDim2.new(1, -32, 0, 8)
+minimizeButton.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+minimizeButton.Text = "-"
+minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizeButton.Font = Enum.Font.SourceSansBold
+minimizeButton.TextSize = 18
+minimizeButton.BorderSizePixel = 0
+minimizeButton.Parent = frame
+Instance.new("UICorner", minimizeButton).CornerRadius = UDim.new(0, 6)
+
+local textBox = Instance.new("TextBox")
+textBox.Size = UDim2.new(0.9, 0, 0, 28)
+textBox.Position = UDim2.new(0.05, 0, 0, 40)
+textBox.PlaceholderText = "Write nickname..."
+textBox.Text = ""
+textBox.ClearTextOnFocus = false
+textBox.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+textBox.Font = Enum.Font.GothamBold
+textBox.TextSize = 16
+textBox.BorderSizePixel = 0
+textBox.Parent = frame
+Instance.new("UICorner", textBox).CornerRadius = UDim.new(0, 8)
+
+
+local dropFrame = Instance.new("Frame")
+dropFrame.Size = UDim2.new(1.15, 0, 0, 72)
+dropFrame.Position = UDim2.new(-0.17, 0, 0, 70)
+dropFrame.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+dropFrame.BorderSizePixel = 0
+dropFrame.Visible = true
+dropFrame.Parent = frame
+Instance.new("UICorner", dropFrame).CornerRadius = UDim.new(0, 8)
+
+local scrolling = Instance.new("ScrollingFrame")
+scrolling.Size = UDim2.new(1, 0, 1, 0)
+scrolling.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrolling.ScrollBarThickness = 4
+scrolling.AutomaticCanvasSize = Enum.AutomaticSize.Y
+scrolling.BackgroundTransparency = 1
+scrolling.Parent = dropFrame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Padding = UDim.new(0, 2)
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Parent = scrolling
+
+local function updatePlayerList()
+	for _, child in pairs(scrolling:GetChildren()) do
+		if child:IsA("TextButton") then child:Destroy() end
+	end
+
+	local visiblePlayers = {}
+	for _, plr in pairs(Players:GetPlayers()) do
+		if plr ~= player then
+			table.insert(visiblePlayers, plr)
+		end
+	end
+
+	for i, plr in ipairs(visiblePlayers) do
+		if i > 12 then break end
+		local btn = Instance.new("TextButton")
+		btn.Size = UDim2.new(1, -6, 0, 22)
+		btn.Text = plr.Name
+		btn.BackgroundColor3 = Color3.fromRGB(65, 65, 75)
+		btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+		btn.Font = Enum.Font.Gotham
+		btn.TextSize = 14
+		btn.BorderSizePixel = 0
+		btn.Parent = scrolling
+		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+		btn.MouseButton1Click:Connect(function()
+			textBox.Text = plr.Name
+		end)
+	end
+
+	task.wait()
+	scrolling.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y)
+end
+
+Players.PlayerAdded:Connect(updatePlayerList)
+Players.PlayerRemoving:Connect(updatePlayerList)
+updatePlayerList()
+
+
+local function createButton(text, position, color)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(0.28, 0, 0, 28)
+	btn.Position = position
+	btn.Text = text
+	btn.BackgroundColor3 = color
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 14
+	btn.BorderSizePixel = 0
+	btn.Parent = frame
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+	btn.BackgroundTransparency = 0.2
+	btn.MouseEnter:Connect(function() btn.BackgroundTransparency = 0 end)
+	btn.MouseLeave:Connect(function() btn.BackgroundTransparency = 0.2 end)
+	btn.MouseButton1Down:Connect(function() btn.BackgroundTransparency = 0 end)
+	btn.MouseButton1Up:Connect(function() btn.BackgroundTransparency = 0.2 end)
+	return btn
+end
+
+local doneButton = createButton("Done", UDim2.new(0.05, 0, 0, 160), Color3.fromRGB(70, 130, 180))
+local stopButton = createButton("Stop", UDim2.new(0.37, 0, 0, 160), Color3.fromRGB(200, 80, 80))
+local clearButton = createButton("Clear", UDim2.new(0.69, 0, 0, 160), Color3.fromRGB(100, 100, 100))
+local randomButton = createButton("Random", UDim2.new(0.05, 0, 0, 195), Color3.fromRGB(255, 215, 0))
+local blockButton = createButton("Block", UDim2.new(0.37, 0, 0, 195), Color3.fromRGB(150, 0, 200))
+
+local minimized = false
+local originalSize = frame.Size
+
+minimizeButton.MouseButton1Click:Connect(function()
+	minimized = not minimized
+	if minimized then
+		for _, child in pairs(frame:GetChildren()) do
+			if child ~= header and child ~= minimizeButton and not child:IsA("UICorner") then
+				child.Visible = false
+			end
+		end
+		frame.Size = UDim2.new(0, 180, 0, 40)
+		minimizeButton.Text = "+"
+	else
+		for _, child in pairs(frame:GetChildren()) do
+			if not child:IsA("UICorner") then
+				child.Visible = true
+			end
+		end
+		frame.Size = originalSize
+		minimizeButton.Text = "-"
+	end
+end)
+
+local baseNames = {
+	"masha","dasha","sasha","anya","vika","lera","mila","sofia","diana","nastya",
+	"artem","pasha","ilya","roma","vlad","daniil","egor","nikita","stepa","kostya",
+	"ava","mia","lily","ella","zoe","ruby","emma","chloe","grace","sophie",
+	"alex","ryan","jack","liam","jay","mark","adam","sam","tom","leo"
+}
+local suffixes = {"pro","yt","plays","xx","girl","boy"}
+local usedNicks = {}
+
+local function generateRandomNick()
+	local base = baseNames[math.random(1, #baseNames)]
+	local nick
+	if math.random() < 0.7 then
+		local year = math.random(2008, 2016)
+		nick = base .. tostring(year)
+	else
+		nick = base
+		if math.random() < 0.5 then
+			local specials = {228,1337,777,999}
+			nick = nick .. tostring(specials[math.random(1,#specials)])
+		else
+			nick = nick .. tostring(math.random(10,9999))
+		end
+		if math.random() < 0.5 then
+			nick = nick .. "_" .. suffixes[math.random(1,#suffixes)]
+		end
+	end
+	if usedNicks[nick] then
+		return generateRandomNick()
+	else
+		usedNicks[nick] = true
+		return nick
+	end
+end
+
+randomButton.MouseButton1Click:Connect(function()
+	textBox.Text = generateRandomNick()
+end)
+
+local function getTradeNickname()
+	local tradeGui = playerGui:FindFirstChild("TradeGUI")
+	if tradeGui and tradeGui:FindFirstChild("Container") and tradeGui.Container:FindFirstChild("Trade") then
+		local theirOffer = tradeGui.Container.Trade:FindFirstChild("TheirOffer")
+		if theirOffer and theirOffer:FindFirstChild("Username") then
+			return theirOffer.Username.Text
+		end
+	end
+	return nil
+end
+
+blockButton.MouseButton1Click:Connect(function()
+	local name = textBox.Text
+	if name ~= "" then
+		local target = Players:FindFirstChild(name)
+		if target then
+			game:GetService('StarterGui'):SetCore('PromptBlockPlayer', target)
+			task.spawn(function()
+				repeat task.wait() until game:GetService('CoreGui'):FindFirstChild('BlockingModalScreen')
+				local gui = game:GetService('CoreGui').BlockingModalScreen.BlockingModalContainer
+				gui.BlockingModalContainerWrapper.BlockingModal.BackgroundTransparency = 1
+				gui.BlockingModalContainerWrapper.BackgroundTransparency = 1
+				gui.BackgroundTransparency = 1
+				gui.BlockingModalContainerWrapper.BlockingModal.AlertModal.Position = UDim2.new(0.008, -110, 0.5, 0)
+			end)
+		end
+	end
+end)
+
+local running = false
+local function getTargetLabel()
+	local tradeGui = playerGui:FindFirstChild("TradeGUI")
+	if tradeGui and tradeGui:FindFirstChild("Container") and tradeGui.Container:FindFirstChild("Trade") then
+		local theirOffer = tradeGui.Container.Trade:FindFirstChild("TheirOffer")
+		if theirOffer and theirOffer:FindFirstChild("Username") then
+			return theirOffer.Username
+		end
+	end
+	return nil
+end
+
+local function startUpdating()
+	if running then return end
+	running = true
+	task.spawn(function()
+		while running do
+			local lbl = getTargetLabel()
+			if lbl then
+				pcall(function() lbl.Text = "("..textBox.Text..")" end)
+			end
+			task.wait(0.0001)
+		end
+	end)
+end
+
+local function stopUpdating() running = false end
+
+doneButton.MouseButton1Click:Connect(startUpdating)
+stopButton.MouseButton1Click:Connect(stopUpdating)
+clearButton.MouseButton1Click:Connect(function() textBox.Text = "" end)
+
+
 
